@@ -94,7 +94,12 @@ export default function FacultyDashboard() {
             if (!session) { router.push('/faculty/login'); return; }
             const res = await fetch('/api/faculty/verify');
             const data = await res.json();
-            if (!data.authorized) { await supabase.auth.signOut(); router.push('/faculty/login'); return; }
+            if (!data.authorized) {
+                // If not authorized as faculty, just redirect to the student dashboard
+                // DO NOT sign out, as they might still be a valid student.
+                router.push('/dashboard');
+                return;
+            }
             setUser(session.user);
             setLoading(false);
             await Promise.all([fetchFiles(), fetchStats()]);
